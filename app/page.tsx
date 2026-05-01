@@ -1,5 +1,6 @@
 import NavBar from "@/components/NavBar";
 import HeroSection from "@/components/HeroSection";
+import TrustStrip from "@/components/TrustStrip";
 import ServicesSection from "@/components/ServicesSection";
 import ConditionsSection from "@/components/ConditionsSection";
 import AboutSection from "@/components/AboutSection";
@@ -13,6 +14,7 @@ export default function Home() {
       <NavBar />
       <main>
         <HeroSection />
+        <TrustStrip />
         <ServicesSection />
         <ConditionsSection />
         <AboutSection />

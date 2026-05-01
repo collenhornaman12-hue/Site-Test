@@ -1,36 +1,46 @@
-const services = [
+import {
+  Bone,
+  ArrowLeftRight,
+  Hand,
+  Activity,
+  Car,
+  PersonStanding,
+  type LucideIcon,
+} from "lucide-react";
+
+const services: { Icon: LucideIcon; title: string; description: string }[] = [
   {
-    icon: "🦴",
+    Icon: Bone,
     title: "Chiropractic Adjustments",
     description:
       "Precise spinal manipulation to restore proper alignment, relieve nerve pressure, and eliminate pain at its source.",
   },
   {
-    icon: "↔️",
+    Icon: ArrowLeftRight,
     title: "Spinal Decompression",
     description:
       "Non-surgical traction therapy to gently stretch the spine and relieve pressure on compressed discs and nerves.",
   },
   {
-    icon: "🤲",
+    Icon: Hand,
     title: "Massage Therapy",
     description:
       "Therapeutic massage to release muscle tension, improve circulation, and complement your chiropractic treatment.",
   },
   {
-    icon: "🏃",
+    Icon: Activity,
     title: "Sports Injury Treatment",
     description:
       "Specialized rehabilitation for athletes — from weekend warriors to professionals — to recover fast and prevent re-injury.",
   },
   {
-    icon: "🚗",
+    Icon: Car,
     title: "Auto Accident Recovery",
     description:
       "Targeted care for whiplash and soft-tissue injuries following motor vehicle accidents, with documentation support.",
   },
   {
-    icon: "🧍",
+    Icon: PersonStanding,
     title: "Posture Correction",
     description:
       "Corrective exercises and adjustments to address forward head posture, rounded shoulders, and chronic postural strain.",
@@ -51,17 +61,19 @@ export default function ServicesSection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((s) => (
+          {services.map(({ Icon, title, description }) => (
             <div
-              key={s.title}
+              key={title}
               className="border border-gray-100 rounded-xl p-6 hover:shadow-lg hover:border-yellow-green/30 transition-all group"
             >
-              <div className="text-3xl mb-3">{s.icon}</div>
-              <h3 className="text-lg font-bold text-navy mb-2 group-hover:text-yellow-green-dark transition-colors">
-                {s.title}
+              <div className="mb-4 flex justify-center">
+                <Icon size={32} color="#8fb339" strokeWidth={1.75} />
+              </div>
+              <h3 className="text-lg font-bold text-navy mb-2 text-center group-hover:text-yellow-green-dark transition-colors">
+                {title}
               </h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                {s.description}
+              <p className="text-gray-600 text-sm leading-relaxed text-center">
+                {description}
               </p>
             </div>
           ))}

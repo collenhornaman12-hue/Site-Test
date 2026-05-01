@@ -24,9 +24,12 @@ export default function HeroSection() {
             Call (814) 438-7242
           </a>
         </div>
-        <p className="mt-8 text-white/50 text-sm">
-          Accepting new patients &bull; Same-week appointments available
-        </p>
+        <div className="mt-8 flex justify-center">
+          <span className="inline-flex items-center gap-2 bg-yellow-green/15 border border-yellow-green/40 text-yellow-green text-sm font-semibold px-4 py-2 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-yellow-green animate-pulse flex-shrink-0" />
+            Same-week appointments available — call or book online before we fill up.
+          </span>
+        </div>
       </div>
     </section>
   );
