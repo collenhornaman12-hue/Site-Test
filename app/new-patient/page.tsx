@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { submitNewPatient } from "./actions";
 
+export const runtime = "edge";
+
 export const metadata = {
   title: "New Patient Intake | Hornaman Chiropractic Center",
   description: "New patient intake form for Hornaman Chiropractic Center, Union City, PA.",
