@@ -1,8 +1,10 @@
-"use server";
+import { NextRequest, NextResponse } from "next/server";
 
-import { redirect } from "next/navigation";
+export const runtime = "edge";
 
-export async function submitExistingPatient(formData: FormData) {
+export async function POST(request: NextRequest) {
+  const formData = await request.formData();
+
   const insuranceChanged = formData.get("insuranceChanged") === "yes";
 
   const fields = {
@@ -19,7 +21,6 @@ export async function submitExistingPatient(formData: FormData) {
     emergencyName: formData.get("emergencyName") as string,
     emergencyRelationship: formData.get("emergencyRelationship") as string,
     emergencyPhone: formData.get("emergencyPhone") as string,
-    insuranceChanged: formData.get("insuranceChanged") as string,
     insuranceProvider: formData.get("insuranceProvider") as string,
     insurancePolicyId: formData.get("insurancePolicyId") as string,
     insuranceGroupNumber: formData.get("insuranceGroupNumber") as string,
@@ -64,18 +65,20 @@ Pain Level: ${fields.painLevel ? fields.painLevel + "/10" : "Not specified"}
 Notes: ${fields.notes || "None"}
   `.trim();
 
-  await fetch("https://api.mailchannels.net/tx/v1/send", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      personalizations: [{
-        to: [{ email: "info@hornamanchiropracticcenter.com" }],
-      }],
-      from: { email: "forms@hornamanchiropracticcenter.com", name: "Hornaman Chiropractic Website" },
-      subject: `Existing Patient: ${fields.firstName} ${fields.lastName}`,
-      content: [{ type: "text/plain", value: emailBody }],
-    }),
-  });
+  try {
+    await fetch("https://api.mailchannels.net/tx/v1/send", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        personalizations: [{ to: [{ email: "info@hornamanchiropracticcenter.com" }] }],
+        from: { email: "forms@hornamanchiropracticcenter.com", name: "Hornaman Chiropractic Website" },
+        subject: `Existing Patient: ${fields.firstName} ${fields.lastName}`,
+        content: [{ type: "text/plain", value: emailBody }],
+      }),
+    });
+  } catch (e) {
+    console.error("Email send failed:", e);
+  }
 
-  redirect("https://cal.com/hornamanchiropracticcenter/existing-patient-visit");
+  return NextResponse.json({ success: true });
 }

@@ -1,13 +1,21 @@
 "use client";
 
-export const runtime = "edge";
-
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { submitExistingPatient } from "./actions";
 
 export default function ExistingPatientPage() {
+  const router = useRouter();
   const [insuranceChanged, setInsuranceChanged] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+    await fetch("/api/existing-patient", { method: "POST", body: formData });
+    router.push("https://cal.com/hornamanchiropracticcenter/existing-patient-visit");
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 py-16 px-4 sm:px-6">
@@ -26,7 +34,7 @@ export default function ExistingPatientPage() {
           </p>
         </div>
 
-        <form action={submitExistingPatient} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Personal Information */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Personal Information</h2>
@@ -218,9 +226,10 @@ export default function ExistingPatientPage() {
 
           <button
             type="submit"
-            className="w-full bg-navy text-white font-bold py-4 rounded-xl text-base hover:bg-navy/90 transition-colors"
+            disabled={submitting}
+            className="w-full bg-navy text-white font-bold py-4 rounded-xl text-base hover:bg-navy/90 transition-colors disabled:opacity-60"
           >
-            Submit Patient Details
+            {submitting ? "Submitting…" : "Submit Patient Details"}
           </button>
 
           <p className="text-center text-xs text-gray-400">

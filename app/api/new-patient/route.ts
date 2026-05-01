@@ -1,8 +1,10 @@
-"use server";
+import { NextRequest, NextResponse } from "next/server";
 
-import { redirect } from "next/navigation";
+export const runtime = "edge";
 
-export async function submitNewPatient(formData: FormData) {
+export async function POST(request: NextRequest) {
+  const formData = await request.formData();
+
   const fields = {
     firstName: formData.get("firstName") as string,
     lastName: formData.get("lastName") as string,
@@ -67,18 +69,20 @@ Notes: ${fields.notes || "None"}
 REFERRAL SOURCE: ${fields.referralSource || "Not specified"}
   `.trim();
 
-  await fetch("https://api.mailchannels.net/tx/v1/send", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      personalizations: [{
-        to: [{ email: "info@hornamanchiropracticcenter.com" }],
-      }],
-      from: { email: "forms@hornamanchiropracticcenter.com", name: "Hornaman Chiropractic Website" },
-      subject: `New Patient Intake: ${fields.firstName} ${fields.lastName}`,
-      content: [{ type: "text/plain", value: emailBody }],
-    }),
-  });
+  try {
+    await fetch("https://api.mailchannels.net/tx/v1/send", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        personalizations: [{ to: [{ email: "info@hornamanchiropracticcenter.com" }] }],
+        from: { email: "forms@hornamanchiropracticcenter.com", name: "Hornaman Chiropractic Website" },
+        subject: `New Patient Intake: ${fields.firstName} ${fields.lastName}`,
+        content: [{ type: "text/plain", value: emailBody }],
+      }),
+    });
+  } catch (e) {
+    console.error("Email send failed:", e);
+  }
 
-  redirect("https://cal.com/hornamanchiropracticcenter/new-patient-intake");
+  return NextResponse.json({ success: true });
 }

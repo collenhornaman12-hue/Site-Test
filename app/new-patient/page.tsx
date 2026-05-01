@@ -1,14 +1,21 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { submitNewPatient } from "./actions";
-
-export const runtime = "edge";
-
-export const metadata = {
-  title: "New Patient Intake | Hornaman Chiropractic Center",
-  description: "New patient intake form for Hornaman Chiropractic Center, Union City, PA.",
-};
 
 export default function NewPatientPage() {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+    await fetch("/api/new-patient", { method: "POST", body: formData });
+    router.push("https://cal.com/hornamanchiropracticcenter/new-patient-intake");
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 py-16 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto">
@@ -26,7 +33,7 @@ export default function NewPatientPage() {
           </p>
         </div>
 
-        <form action={submitNewPatient} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Personal Information */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Personal Information</h2>
@@ -245,9 +252,10 @@ export default function NewPatientPage() {
 
           <button
             type="submit"
-            className="w-full bg-navy text-white font-bold py-4 rounded-xl text-base hover:bg-navy/90 transition-colors"
+            disabled={submitting}
+            className="w-full bg-navy text-white font-bold py-4 rounded-xl text-base hover:bg-navy/90 transition-colors disabled:opacity-60"
           >
-            Submit New Patient Intake Form
+            {submitting ? "Submitting…" : "Submit New Patient Intake Form"}
           </button>
 
           <p className="text-center text-xs text-gray-400">
