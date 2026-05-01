@@ -47,13 +47,13 @@ export default function NavBar() {
 
           {/* New Patients dropdown — pure CSS group-hover, no gap */}
           <div className="relative group flex items-center">
-            <button className="flex items-center gap-1 text-white/80 hover:text-white text-sm font-medium transition-colors pb-2">
+            <button className="flex items-center gap-1 text-white/80 hover:text-white text-sm font-medium transition-colors">
               New Patients
               <svg className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div className="absolute top-full left-0 hidden group-hover:block pt-1">
+            <div className="absolute top-full left-0 hidden group-hover:block pt-2">
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-48">
                 {newPatientLinks.map((link) => (
                   <a
