@@ -19,7 +19,6 @@ const newPatientLinks = [
 
 export default function NavBar() {
   const [open, setOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-navy shadow-md">
@@ -46,38 +45,25 @@ export default function NavBar() {
             </a>
           ))}
 
-          {/* New Patients dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setDropdownOpen(true)}
-            onMouseLeave={() => setDropdownOpen(false)}
-          >
-            <button
-              className="flex items-center gap-1 text-white/80 hover:text-white text-sm font-medium transition-colors"
-              aria-haspopup="true"
-              aria-expanded={dropdownOpen}
-            >
+          {/* New Patients dropdown — pure CSS group-hover, no gap */}
+          <div className="relative group">
+            <button className="flex items-center gap-1 text-white/80 hover:text-white text-sm font-medium transition-colors pb-2">
               New Patients
-              <ChevronDown
-                className={`w-3.5 h-3.5 transition-transform duration-150 ${dropdownOpen ? "rotate-180" : ""}`}
-              />
+              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-150 group-hover:rotate-180" />
             </button>
-
-            {dropdownOpen && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
-                {/* Arrow */}
-                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45" />
+            <div className="absolute top-full left-0 hidden group-hover:block pt-1">
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-48">
                 {newPatientLinks.map((link) => (
                   <a
                     key={link.href}
                     href={link.href}
-                    className="block px-4 py-2.5 text-sm font-medium text-navy hover:bg-yellow-green/10 hover:text-yellow-green-dark transition-colors"
+                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy font-medium transition-colors"
                   >
                     {link.label}
                   </a>
                 ))}
               </div>
-            )}
+            </div>
           </div>
 
           <a
