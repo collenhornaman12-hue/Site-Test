@@ -13,7 +13,7 @@ export default function NewPatientPage() {
     setSubmitting(true);
     const formData = new FormData(e.currentTarget);
     await fetch("/api/new-patient", { method: "POST", body: formData });
-    router.push("https://cal.com/hornamanchiropracticcenter/new-patient-intake");
+    router.push("https://cal.com/hornamanchiropracticcenter/new-patient");
   }
 
   return (
