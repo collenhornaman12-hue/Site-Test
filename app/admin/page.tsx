@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 import { headers } from "next/headers";
 import AdminDashboard from "./AdminDashboard";
 import PasswordGate from "./PasswordGate";
