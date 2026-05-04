@@ -66,8 +66,8 @@ export default function ExistingPatientPage() {
                 <input type="tel" name="phone" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" placeholder="(814) 000-0000" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address <span className="text-red-500">*</span></label>
-                <input type="email" name="email" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+                <input type="email" name="email" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
             </div>
           </section>
@@ -102,16 +102,16 @@ export default function ExistingPatientPage() {
             <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Emergency Contact</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
-                <input type="text" name="emergencyName" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                <input type="text" name="emergencyName" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Relationship <span className="text-red-500">*</span></label>
-                <input type="text" name="emergencyRelationship" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" placeholder="e.g. Spouse, Parent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Relationship</label>
+                <input type="text" name="emergencyRelationship" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" placeholder="e.g. Spouse, Parent" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
-                <input type="tel" name="emergencyPhone" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                <input type="tel" name="emergencyPhone" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
             </div>
           </section>

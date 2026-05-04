@@ -80,8 +80,8 @@ export default function NewPatientPage() {
                 <input type="tel" name="phone" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" placeholder="(814) 000-0000" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address <span className="text-red-500">*</span></label>
-                <input type="email" name="email" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+                <input type="email" name="email" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
             </div>
           </section>
@@ -215,16 +215,16 @@ export default function NewPatientPage() {
             <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Emergency Contact</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
-                <input type="text" name="emergencyName" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                <input type="text" name="emergencyName" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Relationship <span className="text-red-500">*</span></label>
-                <input type="text" name="emergencyRelationship" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" placeholder="e.g. Spouse, Parent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Relationship</label>
+                <input type="text" name="emergencyRelationship" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" placeholder="e.g. Spouse, Parent" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
-                <input type="tel" name="emergencyPhone" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                <input type="tel" name="emergencyPhone" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
             </div>
           </section>
@@ -234,7 +234,7 @@ export default function NewPatientPage() {
             <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Reason for Visit</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Primary Complaint <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Primary Complaint</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {["Back Pain","Neck Pain","Headaches","Sciatica","Shoulder Pain","Hip Pain","Auto Accident","Sports Injury","Posture Issues","Other"].map((item) => (
                     <label key={item} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
@@ -245,8 +245,8 @@ export default function NewPatientPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">How long have you had this condition? <span className="text-red-500">*</span></label>
-                <select name="conditionDuration" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">How long have you had this condition?</label>
+                <select name="conditionDuration" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent">
                   <option value="">Select</option>
                   <option>Less than 1 week</option>
                   <option>1–4 weeks</option>
