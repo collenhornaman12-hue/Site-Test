@@ -1,5 +1,4 @@
 import Link from "next/link";
-import CalButton from "@/components/CalButton";
 
 export const metadata = {
   title: "Accepted Insurance | Hornaman Chiropractic Center",

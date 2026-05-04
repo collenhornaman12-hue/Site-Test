@@ -83,28 +83,35 @@ export default function NewPatientPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address <span className="text-red-500">*</span></label>
                 <input type="email" name="email" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
-              <div className="sm:col-span-2">
+            </div>
+          </section>
+
+          {/* 2 — Home Address */}
+          <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Home Address</h2>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Street Address <span className="text-red-500">*</span></label>
                 <input type="text" name="address" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">City <span className="text-red-500">*</span></label>
-                <input type="text" name="city" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">City <span className="text-red-500">*</span></label>
+                  <input type="text" name="city" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
+                </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">State <span className="text-red-500">*</span></label>
                   <input type="text" name="state" required defaultValue="PA" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">ZIP <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">ZIP Code <span className="text-red-500">*</span></label>
                   <input type="text" name="zip" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
                 </div>
               </div>
             </div>
           </section>
 
-          {/* 2 — Insurance Information */}
+          {/* 3 — Insurance Information */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-bold text-navy mb-1 pb-3 border-b border-gray-100">Insurance Information</h2>
             <p className="text-xs text-gray-400 mt-3 mb-4">
@@ -152,7 +159,7 @@ export default function NewPatientPage() {
             </div>
           </section>
 
-          {/* 3 — Medical History */}
+          {/* 4 — Medical History */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Medical History</h2>
             <div className="space-y-5">
@@ -203,7 +210,7 @@ export default function NewPatientPage() {
             </div>
           </section>
 
-          {/* 4 — Emergency Contact */}
+          {/* 5 — Emergency Contact */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Emergency Contact</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -222,7 +229,7 @@ export default function NewPatientPage() {
             </div>
           </section>
 
-          {/* 5 — Reason for Visit */}
+          {/* 6 — Reason for Visit */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-lg font-bold text-navy mb-5 pb-3 border-b border-gray-100">Reason for Visit</h2>
             <div className="space-y-4">
@@ -293,7 +300,7 @@ export default function NewPatientPage() {
             </div>
           </section>
 
-          {/* 6 — HIPAA Consent */}
+          {/* 8 — HIPAA Consent */}
           <section className="bg-navy/5 rounded-xl border border-navy/10 p-6">
             <h2 className="text-base font-bold text-navy mb-3">HIPAA Consent &amp; Authorization</h2>
             <p className="text-xs text-gray-600 leading-relaxed mb-4">
