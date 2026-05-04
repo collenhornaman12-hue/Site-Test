@@ -1,4 +1,3 @@
-import CalButton from "@/components/CalButton";
 
 export default function Footer() {
   return (
@@ -65,9 +64,9 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <CalButton className="hover:text-white transition-colors cursor-pointer">
+                <a href="/book" className="hover:text-white transition-colors">
                   Book an Appointment →
-                </CalButton>
+                </a>
               </li>
             </ul>
           </div>

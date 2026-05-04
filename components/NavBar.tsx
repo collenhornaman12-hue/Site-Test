@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import CalButton from "@/components/CalButton";
 
 const navLinks = [
   { label: "Services", href: "#services" },
@@ -74,9 +73,9 @@ export default function NavBar() {
           >
             (814) 438-7242
           </a>
-          <CalButton className="bg-yellow-green text-navy font-bold px-4 py-2 rounded text-sm hover:opacity-90 transition-opacity cursor-pointer">
+          <a href="/book" className="bg-yellow-green text-navy font-bold px-4 py-2 rounded text-sm hover:opacity-90 transition-opacity">
             Book Now
-          </CalButton>
+          </a>
         </div>
 
         {/* Mobile hamburger */}
@@ -126,9 +125,9 @@ export default function NavBar() {
           >
             (814) 438-7242
           </a>
-          <CalButton className="mt-3 w-full bg-yellow-green text-navy font-bold px-4 py-2.5 rounded text-sm text-center hover:opacity-90 transition-opacity cursor-pointer block">
+          <a href="/book" className="mt-3 w-full bg-yellow-green text-navy font-bold px-4 py-2.5 rounded text-sm text-center hover:opacity-90 transition-opacity block">
             Book Now
-          </CalButton>
+          </a>
         </div>
       )}
     </header>

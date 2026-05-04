@@ -1,4 +1,3 @@
-import CalButton from "@/components/CalButton";
 import Image from "next/image";
 
 const highlights = [
@@ -58,9 +57,9 @@ export default function AboutSection() {
             </ul>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <CalButton className="bg-[#c8d828] text-[#203078] font-bold px-6 py-3 rounded text-center hover:opacity-90 transition-opacity cursor-pointer">
+              <a href="/book" className="bg-[#c8d828] text-[#203078] font-bold px-6 py-3 rounded text-center hover:opacity-90 transition-opacity">
                 Book an Appointment
-              </CalButton>
+              </a>
               <a
                 href="#contact"
                 className="border-2 border-white text-white hover:bg-white hover:text-[#203078] font-semibold px-6 py-3 rounded text-center transition-colors"

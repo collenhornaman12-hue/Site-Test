@@ -1,5 +1,4 @@
 import { MapPin, Phone, Calendar } from "lucide-react";
-import CalButton from "@/components/CalButton";
 
 const hours = [
   { day: "Monday", time: "8:30 AM – 4:00 PM" },
@@ -67,9 +66,9 @@ export default function ContactSection() {
                   <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">
                     Online Booking
                   </p>
-                  <CalButton className="text-navy font-semibold hover:text-yellow-green transition-colors cursor-pointer">
+                  <a href="/book" className="text-navy font-semibold hover:text-yellow-green transition-colors">
                     Book an Appointment →
-                  </CalButton>
+                  </a>
                 </div>
               </div>
             </div>
