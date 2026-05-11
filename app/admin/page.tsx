@@ -19,16 +19,15 @@ type Intake = {
 
 async function getIntakes(): Promise<Intake[]> {
   const res = await fetch(
-    `${process.env.SUPABASE_URL}/rest/v1/patient_intake?order=submitted_at.desc&limit=200`,
+    process.env.SUPABASE_URL + "/rest/v1/patient_intake?order=submitted_at.desc&limit=200",
     {
       headers: {
-        apikey: process.env.SUPABASE_SERVICE_KEY!,
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+        apikey: process.env.SUPABASE_SERVICE_KEY,
+        Authorization: "Bearer " + process.env.SUPABASE_SERVICE_KEY,
       },
       cache: "no-store",
     }
   );
-  if (!res.ok) return [];
   return res.json();
 }
 
