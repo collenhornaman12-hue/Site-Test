@@ -14,6 +14,7 @@ type Intake = {
   status: string;
   submitted_at: string;
   appt_time?: string;
+  cal_booking_uid?: string;
   raw_data?: Record<string, unknown>;
 };
 
@@ -45,6 +46,13 @@ const STATUS_OPTIONS = [
     cardBg: "bg-red-50 border-red-200",
     badge: "bg-red-100 text-red-800",
     btn: "bg-red-100 text-red-800 border-red-300",
+  },
+  {
+    value: "rejected",
+    label: "Rejected",
+    cardBg: "bg-gray-50 border-gray-300",
+    badge: "bg-gray-200 text-gray-600",
+    btn: "bg-gray-200 text-gray-600 border-gray-300",
   },
 ];
 
@@ -113,7 +121,6 @@ function PatientFormModal({
         onClick={(e) => e.stopPropagation()}
         style={{ fontFamily: "'Oswald', sans-serif" }}
       >
-        {/* Modal header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
           <div>
             <p className="text-[#c8d828] text-xs font-bold uppercase tracking-widest">
@@ -132,7 +139,6 @@ function PatientFormModal({
           </button>
         </div>
 
-        {/* Modal body */}
         <div className="overflow-y-auto px-6 py-5">
           {Object.keys(raw).length === 0 ? (
             <p className="text-gray-400 text-sm text-center py-8">No form data available.</p>
@@ -217,8 +223,12 @@ function PatientFormModal({
 function IntakeCard({ intake }: { intake: Intake }) {
   const [status, setStatus] = useState(intake.status || "pending");
   const [showModal, setShowModal] = useState(false);
+  const [actionLoading, setActionLoading] = useState<"approve" | "reject" | null>(null);
+  const [showRejectInput, setShowRejectInput] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
 
   const current = STATUS_OPTIONS.find((s) => s.value === status) ?? STATUS_OPTIONS[0];
+  const canApproveReject = status === "pending" && !!intake.cal_booking_uid;
 
   async function updateStatus(newStatus: string) {
     const prev = status;
@@ -232,6 +242,47 @@ function IntakeCard({ intake }: { intake: Intake }) {
       if (!res.ok) setStatus(prev);
     } catch {
       setStatus(prev);
+    }
+  }
+
+  async function handleApprove() {
+    setActionLoading("approve");
+    try {
+      const res = await fetch("/api/admin/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: intake.id, cal_booking_uid: intake.cal_booking_uid }),
+      });
+      if (res.ok) {
+        setStatus("scheduled");
+      }
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleReject() {
+    if (!showRejectInput) {
+      setShowRejectInput(true);
+      return;
+    }
+    setActionLoading("reject");
+    try {
+      const res = await fetch("/api/admin/reject", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: intake.id,
+          cal_booking_uid: intake.cal_booking_uid,
+          reason: rejectReason || "Rejected by receptionist",
+        }),
+      });
+      if (res.ok) {
+        setStatus("rejected");
+        setShowRejectInput(false);
+      }
+    } finally {
+      setActionLoading(null);
     }
   }
 
@@ -283,7 +334,6 @@ function IntakeCard({ intake }: { intake: Intake }) {
           )}
           {intake.email && <span className="truncate">✉ {intake.email}</span>}
 
-          {/* Appt time pill — only shown when set; DOB lives in the modal */}
           {intake.appt_time && (
             <span className="sm:col-span-2">
               <span className="inline-block bg-[#203078] text-white text-xs font-bold px-3 py-1 rounded-lg tracking-wide">
@@ -300,7 +350,56 @@ function IntakeCard({ intake }: { intake: Intake }) {
           )}
         </div>
 
-        {/* Bottom row: status buttons + patient form button */}
+        {/* Approve / Reject — only when pending and cal_booking_uid is set */}
+        {canApproveReject && (
+          <div className="mb-3">
+            <div className="flex gap-2 mb-2">
+              <button
+                onClick={handleApprove}
+                disabled={actionLoading !== null}
+                className="px-4 py-1.5 rounded text-xs font-bold uppercase tracking-wider bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {actionLoading === "approve" ? "Approving…" : "✓ Approve"}
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={actionLoading !== null}
+                className="px-4 py-1.5 rounded text-xs font-bold uppercase tracking-wider bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {actionLoading === "reject" ? "Rejecting…" : "✕ Reject"}
+              </button>
+            </div>
+
+            {showRejectInput && (
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Reason (optional)"
+                  className="flex-1 border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-red-400"
+                  onKeyDown={(e) => e.key === "Enter" && handleReject()}
+                  autoFocus
+                />
+                <button
+                  onClick={handleReject}
+                  disabled={actionLoading !== null}
+                  className="px-3 py-1.5 rounded text-xs font-bold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => { setShowRejectInput(false); setRejectReason(""); }}
+                  className="px-3 py-1.5 rounded text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Status buttons + patient form button */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap gap-2">
             {STATUS_OPTIONS.map((opt) => (
@@ -335,6 +434,7 @@ const FILTERS = [
   { key: "called", label: "Called" },
   { key: "scheduled", label: "Scheduled" },
   { key: "no_answer", label: "No Answer" },
+  { key: "rejected", label: "Rejected" },
   { key: "new", label: "New Patients" },
   { key: "existing", label: "Existing" },
 ];

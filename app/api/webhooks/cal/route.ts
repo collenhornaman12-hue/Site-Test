@@ -55,7 +55,14 @@ export async function POST(req: NextRequest) {
 
     const startTime: string | null = payload?.startTime ?? null;
 
-    console.log("Cal webhook extracted — email:", email, "name:", attendeeName, "startTime:", startTime);
+    // Cal.com booking UID — used for confirm/reject via API
+    const calBookingUid: string | null =
+      payload?.uid ||
+      payload?.bookingId ||
+      body?.uid ||
+      null;
+
+    console.log("Cal webhook extracted — email:", email, "name:", attendeeName, "startTime:", startTime, "uid:", calBookingUid);
 
     if (!startTime) {
       console.log("Cal webhook: missing startTime, skipping");
@@ -84,6 +91,9 @@ export async function POST(req: NextRequest) {
     if (!row.status || row.status === "pending") {
       updates.status = "scheduled";
     }
+    if (calBookingUid) {
+      updates.cal_booking_uid = calBookingUid;
+    }
 
     const updateRes = await fetch(
       `${process.env.SUPABASE_URL}/rest/v1/patient_intake?id=eq.${row.id}`,
@@ -100,7 +110,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (updateRes.ok) {
-      console.log("Cal webhook: updated row", row.id, "→ appt_time:", apptTime, "updates:", JSON.stringify(updates));
+      console.log("Cal webhook: updated row", row.id, "→ appt_time:", apptTime, "uid:", calBookingUid, "updates:", JSON.stringify(updates));
     } else {
       console.error("Cal webhook: update failed for row", row.id, await updateRes.text());
     }
