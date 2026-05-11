@@ -97,7 +97,7 @@ REFERRAL SOURCE: ${fields.referralSource || "Not specified"}
         type: "new",
         name: `${fields.firstName} ${fields.lastName}`,
         phone: fields.phone,
-        email: fields.email,
+        email: fields.email || null,
         dob: fields.dob,
         insurance: fields.insuranceProvider || fields.paymentType || null,
         chief_complaint: fields.complaints || null,

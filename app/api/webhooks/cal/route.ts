@@ -14,53 +14,78 @@ function formatApptTime(iso: string): string {
   });
 }
 
+async function searchIntake(
+  filter: string
+): Promise<{ id: string; status: string } | null> {
+  const res = await fetch(
+    `${process.env.SUPABASE_URL}/rest/v1/patient_intake?${filter}&order=submitted_at.desc&limit=1`,
+    {
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_KEY!,
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+      },
+    }
+  );
+  if (!res.ok) {
+    console.error("Cal webhook: Supabase search failed", filter, await res.text());
+    return null;
+  }
+  const rows: Array<{ id: string; status: string }> = await res.json();
+  console.log(`Cal webhook: search [${filter}] → ${rows.length} row(s)`, JSON.stringify(rows));
+  return rows[0] ?? null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    console.log("Cal webhook received:", JSON.stringify(body));
+
     const payload = body.payload ?? body;
 
-    // Cal.com sends attendee email in different fields depending on event type
     const email: string | null =
       payload?.attendee?.email ||
       payload?.responses?.email?.value ||
       payload?.bookerEmail ||
       null;
 
+    const attendeeName: string | null =
+      payload?.attendee?.name ||
+      payload?.responses?.name?.value ||
+      null;
+
     const startTime: string | null = payload?.startTime ?? null;
 
-    if (!email || !startTime) {
+    console.log("Cal webhook extracted — email:", email, "name:", attendeeName, "startTime:", startTime);
+
+    if (!startTime) {
+      console.log("Cal webhook: missing startTime, skipping");
       return NextResponse.json({ received: true });
     }
 
     const apptTime = formatApptTime(startTime);
 
-    const searchRes = await fetch(
-      `${process.env.SUPABASE_URL}/rest/v1/patient_intake?email=eq.${encodeURIComponent(email)}&order=submitted_at.desc&limit=1`,
-      {
-        headers: {
-          apikey: process.env.SUPABASE_SERVICE_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-        },
-      }
-    );
+    // 1. Match by email
+    let row: { id: string; status: string } | null = null;
+    if (email) {
+      row = await searchIntake(`email=eq.${encodeURIComponent(email)}`);
+    }
 
-    if (!searchRes.ok) {
-      console.error("Cal webhook: Supabase search failed", await searchRes.text());
+    // 2. Fall back to name match
+    if (!row && attendeeName) {
+      row = await searchIntake(`name=ilike.*${encodeURIComponent(attendeeName)}*`);
+    }
+
+    if (!row) {
+      console.log("Cal webhook: no matching intake row found — email:", email, "name:", attendeeName);
       return NextResponse.json({ received: true });
     }
 
-    const rows: Array<{ id: string; status: string }> = await searchRes.json();
-    if (!rows.length) {
-      return NextResponse.json({ received: true });
-    }
-
-    const row = rows[0];
     const updates: Record<string, string> = { appt_time: apptTime };
     if (!row.status || row.status === "pending") {
       updates.status = "scheduled";
     }
 
-    await fetch(
+    const updateRes = await fetch(
       `${process.env.SUPABASE_URL}/rest/v1/patient_intake?id=eq.${row.id}`,
       {
         method: "PATCH",
@@ -73,6 +98,12 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify(updates),
       }
     );
+
+    if (updateRes.ok) {
+      console.log("Cal webhook: updated row", row.id, "→ appt_time:", apptTime, "updates:", JSON.stringify(updates));
+    } else {
+      console.error("Cal webhook: update failed for row", row.id, await updateRes.text());
+    }
   } catch (e) {
     console.error("Cal webhook error:", e);
   }

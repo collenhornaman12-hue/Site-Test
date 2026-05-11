@@ -94,7 +94,7 @@ Notes: ${fields.notes || "None"}
         type: "existing",
         name: `${fields.firstName} ${fields.lastName}`,
         phone: fields.phone,
-        email: fields.email,
+        email: fields.email || null,
         dob: fields.dob,
         insurance: insuranceChanged ? fields.insuranceProvider || "Changed — see raw data" : "On file",
         chief_complaint: fields.complaints || null,
