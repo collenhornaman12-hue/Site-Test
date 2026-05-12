@@ -35,48 +35,34 @@ async function searchIntake(
   return rows[0] ?? null;
 }
 
+async function patchIntake(id: string, updates: Record<string, string>) {
+  const res = await fetch(
+    `${process.env.SUPABASE_URL}/rest/v1/patient_intake?id=eq.${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_KEY!,
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify(updates),
+    }
+  );
+  if (!res.ok) {
+    console.error("Cal webhook: patch failed for row", id, await res.text());
+  }
+  return res;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
-    // Full raw body dump
-    console.log("Cal webhook RAW BODY:", JSON.stringify(body));
-
-    // Debug: store full payload as a row so we can inspect raw_data in Supabase
-    await fetch(
-      `${process.env.SUPABASE_URL}/rest/v1/patient_intake`,
-      {
-        method: "POST",
-        headers: {
-          apikey: process.env.SUPABASE_SERVICE_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-          "Content-Type": "application/json",
-          Prefer: "return=minimal",
-        },
-        body: JSON.stringify({
-          type: "webhook_debug",
-          name: "DEBUG",
-          raw_data: body,
-          status: "pending",
-        }),
-      }
-    );
-
+    const triggerEvent: string = body.triggerEvent ?? "UNKNOWN";
     const payload = body.payload ?? body;
 
-    // Full payload dump
-    console.log("Cal webhook PAYLOAD:", JSON.stringify(payload));
-
-    // Every possible UID field
-    console.log("Cal webhook UID FIELDS:", JSON.stringify({
-      "body.uid": body?.uid,
-      "body.bookingId": body?.bookingId,
-      "body.payload?.uid": body?.payload?.uid,
-      "body.payload?.id": body?.payload?.id,
-      "payload.uid": payload?.uid,
-      "payload.bookingId": payload?.bookingId,
-      "payload.id": payload?.id,
-    }));
+    console.log("Cal webhook triggerEvent:", triggerEvent);
+    console.log("Cal webhook RAW BODY:", JSON.stringify(body));
 
     const email: string | null =
       payload?.attendee?.email ||
@@ -89,31 +75,19 @@ export async function POST(req: NextRequest) {
       payload?.responses?.name?.value ||
       null;
 
-    const startTime: string | null = payload?.startTime ?? null;
-
-    // Cal.com booking UID — used for confirm/reject via API
     const calBookingUid: string | null =
       payload?.uid ||
       payload?.bookingId ||
       body?.uid ||
       null;
 
-    console.log("Cal webhook extracted — email:", email, "name:", attendeeName, "startTime:", startTime, "uid:", calBookingUid);
+    console.log("Cal webhook extracted — triggerEvent:", triggerEvent, "email:", email, "name:", attendeeName, "uid:", calBookingUid);
 
-    if (!startTime) {
-      console.log("Cal webhook: missing startTime, skipping");
-      return NextResponse.json({ received: true });
-    }
-
-    const apptTime = formatApptTime(startTime);
-
-    // 1. Match by email
+    // Find matching intake row by email, then name
     let row: { id: string; status: string } | null = null;
     if (email) {
       row = await searchIntake(`email=eq.${encodeURIComponent(email)}`);
     }
-
-    // 2. Fall back to name match
     if (!row && attendeeName) {
       row = await searchIntake(`name=ilike.*${encodeURIComponent(attendeeName)}*`);
     }
@@ -123,33 +97,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    const updates: Record<string, string> = { appt_time: apptTime };
-    if (!row.status || row.status === "pending") {
-      updates.status = "scheduled";
-    }
-    if (calBookingUid) {
-      updates.cal_booking_uid = calBookingUid;
-    }
-
-    const updateRes = await fetch(
-      `${process.env.SUPABASE_URL}/rest/v1/patient_intake?id=eq.${row.id}`,
-      {
-        method: "PATCH",
-        headers: {
-          apikey: process.env.SUPABASE_SERVICE_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-          "Content-Type": "application/json",
-          Prefer: "return=minimal",
-        },
-        body: JSON.stringify(updates),
+    if (triggerEvent === "BOOKING_REQUESTED") {
+      // Save the UID so the receptionist can approve/reject from the dashboard
+      if (calBookingUid) {
+        const res = await patchIntake(row.id, { cal_booking_uid: calBookingUid });
+        if (res.ok) {
+          console.log("Cal webhook BOOKING_REQUESTED: saved cal_booking_uid", calBookingUid, "→ row", row.id);
+        }
+      } else {
+        console.log("Cal webhook BOOKING_REQUESTED: no uid found, skipping patch");
       }
-    );
-
-    if (updateRes.ok) {
-      console.log("Cal webhook: updated row", row.id, "→ appt_time:", apptTime, "uid:", calBookingUid, "updates:", JSON.stringify(updates));
-    } else {
-      console.error("Cal webhook: update failed for row", row.id, await updateRes.text());
+      return NextResponse.json({ received: true });
     }
+
+    if (triggerEvent === "BOOKING_CREATED") {
+      const startTime: string | null = payload?.startTime ?? null;
+      if (!startTime) {
+        console.log("Cal webhook BOOKING_CREATED: missing startTime, skipping");
+        return NextResponse.json({ received: true });
+      }
+
+      const apptTime = formatApptTime(startTime);
+      const updates: Record<string, string> = { appt_time: apptTime };
+      if (!row.status || row.status === "pending") {
+        updates.status = "scheduled";
+      }
+      if (calBookingUid) {
+        updates.cal_booking_uid = calBookingUid;
+      }
+
+      const res = await patchIntake(row.id, updates);
+      if (res.ok) {
+        console.log("Cal webhook BOOKING_CREATED: updated row", row.id, "→ appt_time:", apptTime, "uid:", calBookingUid);
+      }
+      return NextResponse.json({ received: true });
+    }
+
+    console.log("Cal webhook: unhandled triggerEvent", triggerEvent);
   } catch (e) {
     console.error("Cal webhook error:", e);
   }
