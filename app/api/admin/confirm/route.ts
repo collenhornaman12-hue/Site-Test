@@ -1,43 +1,32 @@
 export const runtime = "edge";
+
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
-  if (!process.env.CAL_API_KEY) {
-    return NextResponse.json({ error: "CAL_API_KEY not set" }, { status: 500 });
-  }
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
-    return NextResponse.json({ error: "Supabase env vars not set" }, { status: 500 });
-  }
-
+export async function POST(req: NextRequest) {
   try {
-    const { id, cal_booking_uid } = await request.json();
+    const body = await req.json();
+    const { id, cal_booking_uid } = body;
 
-    console.log("Admin confirm: received id:", id, "cal_booking_uid:", cal_booking_uid);
+    if (!process.env.CAL_API_KEY) {
+      return NextResponse.json({ error: "CAL_API_KEY not set" }, { status: 500 });
+    }
 
     if (!id || !cal_booking_uid) {
       return NextResponse.json({ error: "Missing id or cal_booking_uid" }, { status: 400 });
     }
 
-    const calUrl = `https://api.cal.com/v1/bookings/${cal_booking_uid}/confirm?apiKey=${process.env.CAL_API_KEY}`;
-    console.log("Admin confirm: calling Cal.com URL:", calUrl.replace(process.env.CAL_API_KEY, "[REDACTED]"));
-
-    const calRes = await fetch(calUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
+    const calRes = await fetch(
+      `https://api.cal.com/v1/bookings/${cal_booking_uid}/confirm?apiKey=${process.env.CAL_API_KEY}`,
+      { method: "POST", headers: { "Content-Type": "application/json" } }
+    );
 
     const calBody = await calRes.text();
-    console.log("Admin confirm: Cal.com response status:", calRes.status, "body:", calBody);
 
     if (!calRes.ok) {
-      return NextResponse.json({
-        error: "Cal.com confirm failed",
-        calStatus: calRes.status,
-        calBody,
-      }, { status: 502 });
+      return NextResponse.json({ error: "Cal.com failed", calStatus: calRes.status, calBody }, { status: 500 });
     }
 
-    const sbRes = await fetch(
+    await fetch(
       `${process.env.SUPABASE_URL}/rest/v1/patient_intake?id=eq.${id}`,
       {
         method: "PATCH",
@@ -51,17 +40,10 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    console.log("Admin confirm: Supabase patch status:", sbRes.status);
+    return NextResponse.json({ success: true, calStatus: calRes.status });
 
-    return NextResponse.json({
-      success: true,
-      calStatus: calRes.status,
-      calBody,
-      supabaseStatus: sbRes.status,
-    });
   } catch (err: unknown) {
-    const e = err as { message?: string; stack?: string };
-    console.error("Admin confirm: unexpected error:", e);
-    return NextResponse.json({ error: e.message || "Unexpected error", stack: e.stack }, { status: 500 });
+    const e = err as { message?: string };
+    return NextResponse.json({ error: e.message ?? "unknown" }, { status: 500 });
   }
 }
