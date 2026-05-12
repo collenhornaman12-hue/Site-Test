@@ -75,8 +75,8 @@ export default function ExistingPatientPage() {
                 <input type="tel" name="phone" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" placeholder="(814) 000-0000" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
-                <input type="email" name="email" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address <span className="text-red-500">*</span></label>
+                <input type="email" name="email" required className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-green focus:border-transparent" />
               </div>
             </div>
           </section>

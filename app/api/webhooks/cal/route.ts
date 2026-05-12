@@ -83,13 +83,21 @@ export async function POST(req: NextRequest) {
 
     console.log("Cal webhook extracted — triggerEvent:", triggerEvent, "email:", email, "name:", attendeeName, "uid:", calBookingUid);
 
-    // Find matching intake row by email, then name
+    // Find matching intake row by email, then full name, then last name only
     let row: { id: string; status: string } | null = null;
     if (email) {
       row = await searchIntake(`email=eq.${encodeURIComponent(email)}`);
     }
     if (!row && attendeeName) {
+      console.log("Cal webhook: trying full name match for:", attendeeName);
       row = await searchIntake(`name=ilike.*${encodeURIComponent(attendeeName)}*`);
+    }
+    if (!row && attendeeName) {
+      const lastName = attendeeName.trim().split(" ").pop() ?? "";
+      if (lastName) {
+        console.log("Cal webhook: trying last name fallback for:", lastName);
+        row = await searchIntake(`name=ilike.*${encodeURIComponent(lastName)}*`);
+      }
     }
 
     if (!row) {
