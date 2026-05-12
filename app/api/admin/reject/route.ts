@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${process.env.CAL_API_KEY}`,
-          "cal-api-version": "2024-08-13",
+          "cal-api-version": "2026-02-25",
         },
         body: JSON.stringify({ reason: reason || "Rejected by office" }),
       }
