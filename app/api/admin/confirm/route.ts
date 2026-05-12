@@ -5,28 +5,31 @@ export const runtime = "edge";
 export async function POST(req: NextRequest) {
   const { id, cal_booking_uid } = await req.json();
 
+  console.log("Admin confirm: received id:", id, "cal_booking_uid:", cal_booking_uid);
+
   if (!id || !cal_booking_uid) {
     return NextResponse.json({ error: "Missing id or cal_booking_uid" }, { status: 400 });
   }
 
-  const calRes = await fetch(
-    `https://api.cal.com/v2/bookings/${cal_booking_uid}/confirm`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.CAL_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  const calUrl = `https://api.cal.com/v1/bookings/${cal_booking_uid}/confirm`;
+  console.log("Admin confirm: calling Cal.com URL:", calUrl);
+
+  const calRes = await fetch(calUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.CAL_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const calBody = await calRes.text();
+  console.log("Admin confirm: Cal.com response status:", calRes.status, "body:", calBody);
 
   if (!calRes.ok) {
-    const body = await calRes.text();
-    console.error("Cal confirm failed:", calRes.status, body);
-    return NextResponse.json({ error: "Cal.com confirm failed", detail: body }, { status: 502 });
+    return NextResponse.json({ error: "Cal.com confirm failed", detail: calBody }, { status: 502 });
   }
 
-  await fetch(
+  const sbRes = await fetch(
     `${process.env.SUPABASE_URL}/rest/v1/patient_intake?id=eq.${id}`,
     {
       method: "PATCH",
@@ -39,6 +42,8 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ status: "scheduled" }),
     }
   );
+
+  console.log("Admin confirm: Supabase patch status:", sbRes.status);
 
   return NextResponse.json({ success: true });
 }

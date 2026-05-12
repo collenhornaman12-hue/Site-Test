@@ -224,6 +224,7 @@ function IntakeCard({ intake }: { intake: Intake }) {
   const [status, setStatus] = useState(intake.status || "pending");
   const [showModal, setShowModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<"approve" | "reject" | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [showRejectInput, setShowRejectInput] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
@@ -247,6 +248,7 @@ function IntakeCard({ intake }: { intake: Intake }) {
 
   async function handleApprove() {
     setActionLoading("approve");
+    setActionError(null);
     try {
       const res = await fetch("/api/admin/confirm", {
         method: "POST",
@@ -255,7 +257,12 @@ function IntakeCard({ intake }: { intake: Intake }) {
       });
       if (res.ok) {
         setStatus("scheduled");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setActionError(`Approve failed (${res.status}): ${data.detail || data.error || "unknown error"}`);
       }
+    } catch (e) {
+      setActionError(`Approve failed: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setActionLoading(null);
     }
@@ -267,6 +274,7 @@ function IntakeCard({ intake }: { intake: Intake }) {
       return;
     }
     setActionLoading("reject");
+    setActionError(null);
     try {
       const res = await fetch("/api/admin/reject", {
         method: "POST",
@@ -280,7 +288,12 @@ function IntakeCard({ intake }: { intake: Intake }) {
       if (res.ok) {
         setStatus("rejected");
         setShowRejectInput(false);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setActionError(`Reject failed (${res.status}): ${data.detail || data.error || "unknown error"}`);
       }
+    } catch (e) {
+      setActionError(`Reject failed: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setActionLoading(null);
     }
@@ -353,6 +366,9 @@ function IntakeCard({ intake }: { intake: Intake }) {
         {/* Approve / Reject — only when pending and cal_booking_uid is set */}
         {canApproveReject && (
           <div className="mb-3">
+            {actionError && (
+              <p className="text-red-600 text-xs mb-2 break-words">{actionError}</p>
+            )}
             <div className="flex gap-2 mb-2">
               <button
                 onClick={handleApprove}
