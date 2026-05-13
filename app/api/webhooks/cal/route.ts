@@ -83,6 +83,40 @@ export async function POST(req: NextRequest) {
 
     console.log("Cal webhook extracted — triggerEvent:", triggerEvent, "email:", email, "name:", attendeeName, "uid:", calBookingUid);
 
+    // BOOKING_CONFIRMED: search by cal_booking_uid first (most reliable), then fall back
+    if (triggerEvent === "BOOKING_CONFIRMED") {
+      const startTime: string | null = payload?.startTime ?? null;
+
+      let confirmedRow: { id: string; status: string } | null = null;
+      if (calBookingUid) {
+        confirmedRow = await searchIntake(`cal_booking_uid=eq.${encodeURIComponent(calBookingUid)}`);
+      }
+      if (!confirmedRow && email) {
+        confirmedRow = await searchIntake(`email=eq.${encodeURIComponent(email)}`);
+      }
+      if (!confirmedRow && attendeeName) {
+        confirmedRow = await searchIntake(`name=ilike.*${encodeURIComponent(attendeeName)}*`);
+      }
+
+      if (!confirmedRow) {
+        console.log("Cal webhook BOOKING_CONFIRMED: no matching row — uid:", calBookingUid, "email:", email);
+        return NextResponse.json({ received: true });
+      }
+
+      if (!startTime) {
+        console.log("Cal webhook BOOKING_CONFIRMED: missing startTime, skipping appt_time update");
+        await patchIntake(confirmedRow.id, { status: "scheduled" });
+        return NextResponse.json({ received: true });
+      }
+
+      const apptTime = formatApptTime(startTime);
+      const res = await patchIntake(confirmedRow.id, { appt_time: apptTime, status: "scheduled" });
+      if (res.ok) {
+        console.log("Cal webhook BOOKING_CONFIRMED: updated row", confirmedRow.id, "→ appt_time:", apptTime);
+      }
+      return NextResponse.json({ received: true });
+    }
+
     // Find matching intake row by email, then full name, then last name only
     let row: { id: string; status: string } | null = null;
     if (email) {
