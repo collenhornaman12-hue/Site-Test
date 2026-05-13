@@ -130,56 +130,44 @@ export async function POST(req: NextRequest) {
       emailTime = "";
     }
 
-    // Send confirmation email to patient
+    // Send confirmation email to patient via Resend
     if (patientEmail) {
-      const emailBody = `Hi ${patientName},
-
-Your appointment with Hornaman Chiropractic Center has been confirmed. We look forward to seeing you!
-
-Appointment Details:
-Date: ${emailDate}
-${emailTime ? `Time: ${emailTime} ET\n` : ""}Location: 107 N. Main St., Union City, PA 16438
-
-Please arrive 10 minutes early to complete any remaining paperwork. If you need to reschedule or cancel, please contact our office at least 24 hours in advance.
-
-Phone: (814) 438-7242
-
-Office Hours:
-Monday 8:30 AM – 4:00 PM
-Tuesday 9:30 AM – 6:00 PM
-Thursday 9:30 AM – 6:00 PM
-Friday 8:30 AM – 4:00 PM
-
-We look forward to seeing you.
-
-Dr. Thomas J. Hornaman
-Hornaman Chiropractic Center
-107 N. Main St., Union City, PA 16438`;
+      const emailHtml = `<p>Hi ${patientName},</p>
+<p>Your appointment with Hornaman Chiropractic Center has been confirmed. We look forward to seeing you!</p>
+<p><strong>Appointment Details:</strong><br>
+Date: ${emailDate}${emailTime ? `<br>Time: ${emailTime} ET` : ""}<br>
+Location: 107 N. Main St., Union City, PA 16438</p>
+<p>Please arrive 10 minutes early to complete any remaining paperwork. If you need to reschedule or cancel, please contact our office at least 24 hours in advance.</p>
+<p>Phone: (814) 438-7242</p>
+<p><strong>Office Hours:</strong><br>
+Monday 8:30 AM – 4:00 PM<br>
+Tuesday 9:30 AM – 6:00 PM<br>
+Thursday 9:30 AM – 6:00 PM<br>
+Friday 8:30 AM – 4:00 PM</p>
+<p>We look forward to seeing you.</p>
+<p>Dr. Thomas J. Hornaman<br>
+Hornaman Chiropractic Center<br>
+107 N. Main St., Union City, PA 16438</p>`;
 
       try {
         console.log("confirm: sending confirmation email to:", patientEmail);
-        const mcRes = await fetch("https://api.mailchannels.net/tx/v1/send", {
+        const resendRes = await fetch("https://api.resend.com/emails", {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: {
+            "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
-            personalizations: [{
-              to: [{ email: patientEmail }],
-              dkim_domain: "hornamanchiropracticcenter.com",
-              dkim_selector: "mailchannels",
-              dkim_private_key: process.env.DKIM_PRIVATE_KEY ?? "",
-            }],
-            from: {
-              email: "forms@hornamanchiropracticcenter.com",
-              name: "Hornaman Chiropractic Center",
-            },
-            subject: "Your appointment is confirmed — Hornaman Chiropractic Center",
-            content: [{ type: "text/plain", value: emailBody }],
+            from: "Hornaman Chiropractic Center <appointments@hornamanchiropracticcenter.com>",
+            to: [patientEmail],
+            subject: "Your Appointment is Confirmed",
+            html: emailHtml,
           }),
         });
-        const mcBody = await mcRes.text();
-        console.log("confirm: MailChannels status:", mcRes.status, "body:", mcBody);
+        const resendBody = await resendRes.text();
+        console.log("confirm: Resend status:", resendRes.status, "body:", resendBody);
       } catch (e) {
-        console.error("confirm: MailChannels send failed:", e);
+        console.error("confirm: Resend send failed:", e);
       }
     }
 
