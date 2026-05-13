@@ -171,9 +171,37 @@ Hornaman Chiropractic Center<br>
       }
     }
 
-    // SMS: patientPhone is available for future Twilio integration
+    // Send SMS via Twilio
     if (patientPhone) {
-      console.log("confirm: patientPhone for SMS:", patientPhone);
+      const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+      const twilioToken = process.env.TWILIO_AUTH_TOKEN;
+      const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
+
+      const toPhone = patientPhone.replace(/\D/g, "").replace(/^1?/, "+1");
+      const apptTimeDisplay = updates.appt_time ?? existingApptTime ?? "your scheduled time";
+      const smsBody = `Hi ${patientName}, your appointment at Hornaman Chiropractic Center is confirmed for ${apptTimeDisplay}. Please arrive 10 minutes early. To reschedule call (814) 438-7242. - Dr. Hornaman`;
+
+      try {
+        const twilioRes = await fetch(
+          `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
+          {
+            method: "POST",
+            headers: {
+              "Authorization": "Basic " + btoa(`${twilioSid}:${twilioToken}`),
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              From: twilioFrom ?? "",
+              To: toPhone,
+              Body: smsBody,
+            }).toString(),
+          }
+        );
+        const twilioData = await twilioRes.json() as { sid?: string; message?: string };
+        console.log("confirm: Twilio SMS status:", twilioRes.status, "sid:", twilioData.sid, "error:", twilioData.message);
+      } catch (e) {
+        console.error("confirm: Twilio SMS failed:", e);
+      }
     } else {
       console.log("confirm: no patientPhone on record — SMS not sent");
     }
