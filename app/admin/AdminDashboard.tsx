@@ -222,6 +222,7 @@ function PatientFormModal({
 
 function IntakeCard({ intake }: { intake: Intake }) {
   const [status, setStatus] = useState(intake.status || "pending");
+  const [apptTime, setApptTime] = useState<string | null>(intake.appt_time ?? null);
   const [showModal, setShowModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<"approve" | "reject" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -256,7 +257,9 @@ function IntakeCard({ intake }: { intake: Intake }) {
         body: JSON.stringify({ id: intake.id, cal_booking_uid: intake.cal_booking_uid }),
       });
       if (res.ok) {
+        const data = await res.json().catch(() => ({}));
         setStatus("scheduled");
+        if (data.appt_time) setApptTime(data.appt_time);
       } else {
         const data = await res.json().catch(() => ({}));
         setActionError(`Approve failed (${res.status}): ${data.calBody || data.error || JSON.stringify(data)}`);
@@ -347,10 +350,10 @@ function IntakeCard({ intake }: { intake: Intake }) {
           )}
           {intake.email && <span className="truncate">✉ {intake.email}</span>}
 
-          {intake.appt_time && (
+          {apptTime && (
             <span className="sm:col-span-2">
               <span className="inline-block bg-[#203078] text-white text-xs font-bold px-3 py-1 rounded-lg tracking-wide">
-                Appt: {intake.appt_time}
+                Appt: {apptTime}
               </span>
             </span>
           )}

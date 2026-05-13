@@ -176,8 +176,21 @@ Hornaman Chiropractic Center
       }
     }
 
+    // SMS: patientPhone is available for future Twilio integration
+    if (patientPhone) {
+      console.log("confirm: patientPhone for SMS:", patientPhone);
+    } else {
+      console.log("confirm: no patientPhone on record — SMS not sent");
+    }
+
     return NextResponse.json(
-      { success: true, calStatus: calRes.status, calBody, cal_booking_uid_sent: cal_booking_uid },
+      {
+        success: true,
+        calStatus: calRes.status,
+        calBody,
+        cal_booking_uid_sent: cal_booking_uid,
+        appt_time: updates.appt_time ?? null,
+      },
       { status: 200 }
     );
   } catch (err: unknown) {
