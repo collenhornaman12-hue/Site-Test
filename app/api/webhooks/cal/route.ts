@@ -139,11 +139,14 @@ export async function POST(req: NextRequest) {
     }
 
     if (triggerEvent === "BOOKING_REQUESTED") {
-      // Save the UID so the receptionist can approve/reject from the dashboard
+      // Save the UID and appt_time so the receptionist sees the time before approving
       if (calBookingUid) {
-        const res = await patchIntake(row.id, { cal_booking_uid: calBookingUid });
+        const startTime: string | null = payload?.startTime ?? null;
+        const updates: Record<string, string> = { cal_booking_uid: calBookingUid };
+        if (startTime) updates.appt_time = formatApptTime(startTime);
+        const res = await patchIntake(row.id, updates);
         if (res.ok) {
-          console.log("Cal webhook BOOKING_REQUESTED: saved cal_booking_uid", calBookingUid, "→ row", row.id);
+          console.log("Cal webhook BOOKING_REQUESTED: saved cal_booking_uid", calBookingUid, "appt_time:", updates.appt_time ?? "none", "→ row", row.id);
         }
       } else {
         console.log("Cal webhook BOOKING_REQUESTED: no uid found, skipping patch");
