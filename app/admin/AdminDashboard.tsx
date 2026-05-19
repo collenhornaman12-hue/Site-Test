@@ -546,9 +546,13 @@ export default function AdminDashboard({ intakes: initialIntakes }: { intakes: I
         setIntakes((prev) => prev.filter((i) => !selectedIds.has(i.id)));
         setSelectedIds(new Set());
         setSelectionMode(false);
+      } else {
+        setSelectionMode(false);
+        setSelectedIds(new Set());
       }
     } catch {
-      // silently fail — cards remain visible
+      setSelectionMode(false);
+      setSelectedIds(new Set());
     }
   }
 
@@ -614,6 +618,15 @@ export default function AdminDashboard({ intakes: initialIntakes }: { intakes: I
           >
             {selectionMode ? "Yes — Clear Patient Cards" : "Clear Patient Cards"}
           </button>
+
+          {selectionMode && (
+            <button
+              onClick={() => { setSelectionMode(false); setSelectedIds(new Set()); }}
+              className="px-4 py-1 rounded text-sm font-bold uppercase tracking-wide border-2 border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              Cancel
+            </button>
+          )}
         </div>
 
         {/* Cards */}

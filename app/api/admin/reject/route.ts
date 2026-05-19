@@ -1,7 +1,12 @@
 export const runtime = "edge";
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest) {
+  const session = (await cookies()).get("admin_session")?.value;
+  if (session !== "authenticated")
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
     const body = await req.json();
     const { id, cal_booking_uid, reason } = body;

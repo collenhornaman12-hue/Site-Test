@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export const runtime = "edge";
 
 export async function PATCH(request: NextRequest) {
+  const session = (await cookies()).get("admin_session")?.value;
+  if (session !== "authenticated")
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id, status } = await request.json();
 
   if (!id || !status) {

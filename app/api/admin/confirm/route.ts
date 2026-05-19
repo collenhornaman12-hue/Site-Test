@@ -1,5 +1,6 @@
 export const runtime = "edge";
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 function formatApptTime(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
@@ -33,6 +34,10 @@ function formatEmailTime(iso: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  const session = (await cookies()).get("admin_session")?.value;
+  if (session !== "authenticated")
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
     const body = await req.json();
     const { id, cal_booking_uid } = body;
