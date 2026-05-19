@@ -220,7 +220,17 @@ function PatientFormModal({
   );
 }
 
-function IntakeCard({ intake }: { intake: Intake }) {
+function IntakeCard({
+  intake,
+  selectionMode,
+  selected,
+  onToggleSelect,
+}: {
+  intake: Intake;
+  selectionMode: boolean;
+  selected: boolean;
+  onToggleSelect: (id: string) => void;
+}) {
   const [status, setStatus] = useState(intake.status || "pending");
   const [apptTime, setApptTime] = useState<string | null>(intake.appt_time ?? null);
   const [showModal, setShowModal] = useState(false);
@@ -309,9 +319,21 @@ function IntakeCard({ intake }: { intake: Intake }) {
       )}
 
       <div
-        className={`rounded-xl border-2 p-5 transition-colors ${current.cardBg}`}
+        className={`relative rounded-xl border-2 p-5 transition-colors ${current.cardBg}`}
         style={{ fontFamily: "'Oswald', sans-serif" }}
       >
+        {/* Selection checkbox — top-right corner */}
+        {selectionMode && (
+          <div className="absolute top-3 right-3 z-10">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={() => onToggleSelect(intake.id)}
+              className="w-6 h-6 cursor-pointer accent-red-600"
+            />
+          </div>
+        )}
+
         {/* Top row: badges + timestamp */}
         <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
@@ -328,7 +350,7 @@ function IntakeCard({ intake }: { intake: Intake }) {
               {current.label}
             </span>
           </div>
-          <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+          <span className={`text-xs text-gray-400 whitespace-nowrap flex-shrink-0${selectionMode ? " mr-8" : ""}`}>
             {formatDate(intake.submitted_at)}
           </span>
         </div>
@@ -460,8 +482,11 @@ const FILTERS = [
   { key: "existing", label: "Existing" },
 ];
 
-export default function AdminDashboard({ intakes }: { intakes: Intake[] }) {
+export default function AdminDashboard({ intakes: initialIntakes }: { intakes: Intake[] }) {
+  const [intakes, setIntakes] = useState<Intake[]>(initialIntakes);
   const [filter, setFilter] = useState("all");
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filtered = intakes.filter((i) => {
     if (filter === "all") return true;
@@ -472,6 +497,60 @@ export default function AdminDashboard({ intakes }: { intakes: Intake[] }) {
   const pendingCount = intakes.filter(
     (i) => (i.status || "pending") === "pending"
   ).length;
+
+  function toggleSelectId(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const allVisibleSelected =
+    filtered.length > 0 && filtered.every((i) => selectedIds.has(i.id));
+
+  function toggleSelectAll() {
+    if (allVisibleSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filtered.forEach((i) => next.delete(i.id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filtered.forEach((i) => next.add(i.id));
+        return next;
+      });
+    }
+  }
+
+  async function handleBulkDelete() {
+    if (!selectionMode) {
+      setSelectionMode(true);
+      return;
+    }
+    if (selectedIds.size === 0) {
+      setSelectionMode(false);
+      return;
+    }
+    const ids = Array.from(selectedIds);
+    try {
+      const res = await fetch("/api/admin/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      if (res.ok) {
+        setIntakes((prev) => prev.filter((i) => !selectedIds.has(i.id)));
+        setSelectedIds(new Set());
+        setSelectionMode(false);
+      }
+    } catch {
+      // silently fail — cards remain visible
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-100" style={{ fontFamily: "'Oswald', sans-serif" }}>
@@ -496,8 +575,8 @@ export default function AdminDashboard({ intakes }: { intakes: Intake[] }) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Filter tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        {/* Filter tabs + bulk delete */}
+        <div className="flex flex-wrap gap-2 mb-6 items-center">
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -516,6 +595,25 @@ export default function AdminDashboard({ intakes }: { intakes: Intake[] }) {
               )}
             </button>
           ))}
+
+          {selectionMode && (
+            <label className="flex items-center gap-1.5 cursor-pointer text-sm font-bold text-gray-600 select-none">
+              <input
+                type="checkbox"
+                checked={allVisibleSelected}
+                onChange={toggleSelectAll}
+                className="w-5 h-5 cursor-pointer accent-red-600"
+              />
+              Select All
+            </label>
+          )}
+
+          <button
+            onClick={handleBulkDelete}
+            className="bg-red-600 text-white font-bold px-4 py-1 rounded text-sm uppercase tracking-wide"
+          >
+            {selectionMode ? "Yes — Clear Patient Cards" : "Clear Patient Cards"}
+          </button>
         </div>
 
         {/* Cards */}
@@ -526,7 +624,13 @@ export default function AdminDashboard({ intakes }: { intakes: Intake[] }) {
         ) : (
           <div className="space-y-4">
             {filtered.map((intake) => (
-              <IntakeCard key={intake.id} intake={intake} />
+              <IntakeCard
+                key={intake.id}
+                intake={intake}
+                selectionMode={selectionMode}
+                selected={selectedIds.has(intake.id)}
+                onToggleSelect={toggleSelectId}
+              />
             ))}
           </div>
         )}
