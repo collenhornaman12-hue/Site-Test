@@ -14,10 +14,10 @@ const services = [
       "Non-surgical traction therapy to gently stretch the spine and relieve pressure on compressed discs and nerves.",
   },
   {
-    icon: Hand,
-    title: "Massage Therapy",
+    icon: FileText,
+    title: "DOT Physicals",
     description:
-      "Therapeutic massage to release muscle tension, improve circulation, and complement your chiropractic treatment.",
+      "Certified Department of Transportation (DOT) physical examinations to keep your commercial driver's license compliant and safely on the road.",
   },
   {
     icon: Trophy,
