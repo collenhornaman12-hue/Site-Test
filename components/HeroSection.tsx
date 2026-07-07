@@ -3,7 +3,7 @@ export default function HeroSection() {
     <section id="home" className="bg-[#203078]">
       <div className="w-[90%] mx-auto">
         <img
-          src="/images/hero_billboard.jpg"
+          src="/hero_billboard.jpg"
           alt="Got Pain? Think Chiropractic. — Dr. Thomas J. Hornaman"
           className="w-full h-auto block"
         />
