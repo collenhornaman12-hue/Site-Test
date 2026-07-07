@@ -81,7 +81,7 @@ export default function ReviewsSection() {
 
         <div className="text-center mt-8">
           <a
-            href="https://www.google.com/maps/place/Hornaman+Chiropractic+Center"
+            href="https://www.google.com/maps/place/Hornaman+Chiropractic+Center/@41.9044888,-79.8452336,1158m/data=!3m1!1e3!4m18!1m9!3m8!1s0x883290d89dce7961:0x666707c8db0e43f7!2sHornaman+Chiropractic+Center!8m2!3d41.9044823!4d-79.8449426!9m1!1b1!16s%2Fg%2F11bw4q7n27!3m7!1s0x883290d89dce7961:0x666707c8db0e43f7!8m2!3d41.9044823!4d-79.8449426!9m1!1b1!16s%2Fg%2F11bw4q7n27?entry=ttu&g_ep=EgoyMDI2MDcwNS4wIKXMDSoASAFQAw%3D%3D"
             target="_blank"
             rel="noopener noreferrer"
             className="text-white/40 hover:text-white/70 text-xs transition-colors underline underline-offset-2"
