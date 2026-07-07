@@ -1,3 +1,4 @@
+import CalButton from "@/components/CalButton";
 import Image from "next/image";
 
 const highlights = [
@@ -12,11 +13,11 @@ export default function AboutSection() {
   return (
     <section id="about" className="bg-[#203078] py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Billboard image */}
-          <div className="lg:col-span-3 order-1">
+          <div className="order-2 lg:order-1">
             <Image
-              src="/images/about_billboard.jpg"
+              src="/6x12 Hornaman Chiropractic Headshot Billboard side 1.jpeg"
               alt="Dr. Thomas J. Hornaman — Hornaman Chiropractic Center"
               width={1200}
               height={624}
@@ -26,7 +27,7 @@ export default function AboutSection() {
           </div>
 
           {/* Text */}
-          <div className="lg:col-span-2 order-2">
+          <div className="order-1 lg:order-2">
             <p className="text-[#c8d828] font-semibold text-sm uppercase tracking-widest mb-2">
               About Our Practice
             </p>
@@ -57,9 +58,9 @@ export default function AboutSection() {
             </ul>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <a href="/book" className="bg-[#c8d828] text-[#203078] font-bold px-6 py-3 rounded text-center hover:opacity-90 transition-opacity">
+              <CalButton className="bg-[#c8d828] text-[#203078] font-bold px-6 py-3 rounded text-center hover:opacity-90 transition-opacity cursor-pointer">
                 Book an Appointment
-              </a>
+              </CalButton>
               <a
                 href="#contact"
                 className="border-2 border-white text-white hover:bg-white hover:text-[#203078] font-semibold px-6 py-3 rounded text-center transition-colors"
