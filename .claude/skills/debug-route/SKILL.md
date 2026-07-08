@@ -1,6 +1,6 @@
 ---
 name: debug-route
-description: Instrument a Next.js API route with diagnostic logging and verbose error responses to debug a production failure (5xx, wrong behavior) on Cloudflare Pages, deploy it, and revert the instrumentation once the bug is found. Use when a deployed API route fails and the cause isn't visible locally.
+description: Debug a failing production API route by instrumenting it with diagnostics, deploying, reading the real upstream error, fixing, and reverting. Use when a deployed route returns 502/500, the admin dashboard shows "unknown error" or a failed approve/reject, the Cal.com webhook isn't writing to Supabase, or anything works locally but fails on the live Cloudflare Pages site.
 argument-hint: <route path, e.g. app/api/admin/confirm/route.ts> [symptom]
 ---
 
